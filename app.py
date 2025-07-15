@@ -68,27 +68,24 @@ def main():
 
         st.subheader("Prediction Breakdown with SHAP")
         try:
-            explainer = shap.Explainer(model, df_scaled, check_additivity=False)
-            shap_values = explainer(df_scaled)
-
-            if len(shap_values.shape) == 3:  # Multi-class output
-                shap_values_class1 = shap_values[:, 1]
-            else:  # Binary output
-                shap_values_class1 = shap_values
+            explainer = shap.TreeExplainer(model)
+            shap_values = explainer.shap_values(df_scaled, check_additivity=False)
+            shap_values_class1 = shap_values[1]  # SHAP values for class 1 (default)
 
             # Global SHAP Summary
             st.write("### Global Feature Importance")
             fig_summary, ax_summary = plt.subplots()
             shap.summary_plot(
-                shap_values_class1.values,
+                shap_values_class1,
                 features=df_scaled.values,
                 feature_names=df_scaled.columns,
                 show=False
             )
-            st.pyplot(fig_waterfall)
+            st.pyplot(fig_summary)
 
         except Exception as e:
             st.warning(f"SHAP explanation failed: {e}")
+
 
         st.subheader("Prediction Distribution")
         st.bar_chart(df['Default Prediction'].value_counts())
