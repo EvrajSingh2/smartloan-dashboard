@@ -76,12 +76,15 @@ def main():
 
             
             st.write("### Global Feature Importance")
-            shap.summary_plot(shap_values, df_input)
-            st.pyplot(bbox_inches='tight')
+            fig_summary, ax_summary = plt.subplots()
+            shap.summary_plot(shap_values, df_input, show=False)
+            st.pyplot(fig_summary)
 
             st.write("### Local Explanation (First Row)")
-            shap.plots.waterfall(shap_values[0])
-            st.pyplot(bbox_inches='tight')
+            fig_waterfall, ax_waterfall = plt.subplots()
+            shap.plots.waterfall(shap_values[0], show=False)
+            st.pyplot(fig_waterfall)
+
         except Exception as e:
             st.error(f"SHAP explanation failed: {e}")
 
