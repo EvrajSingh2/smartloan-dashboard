@@ -22,6 +22,7 @@ def load_and_preprocess():
 # Train and save the model
 def train_model():
     X, y = load_and_preprocess()
+    st.write("🔧 Training model on features:", X.columns.tolist())
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
@@ -29,7 +30,8 @@ def train_model():
     model = RandomForestClassifier(n_estimators=100, random_state=42)
     model.fit(X_train_scaled, y_train)
     y_pred = model.predict(X_test_scaled)
-    print("Model Performance:\n", classification_report(y_test, y_pred))
+    print("Model Performance:
+", classification_report(y_test, y_pred))
     with open('model.pkl', 'wb') as f:
         pickle.dump(model, f)
     with open('scaler.pkl', 'wb') as f:
@@ -68,10 +70,10 @@ def main():
 
         st.subheader("Prediction Breakdown with SHAP")
         try:
-            # Use TreeExplainer for classic models like RandomForest
-            explainer = shap.TreeExplainer(model)
-            shap_values = explainer.shap_values(df_scaled, check_additivity=False)
-            shap_values_class1 = shap_values[1]  # class 1 = default
+            # Use SHAP's unified API for better compatibility
+            explainer = shap.Explainer(model, df_scaled)
+            shap_values = explainer(df_scaled)
+            shap_values_class1 = shap_values.values
 
             # Global SHAP Summary
             st.write("### Global Feature Importance")
@@ -91,7 +93,7 @@ def main():
             st.write("### Local Explanation (First Row)")
             explanation = shap.Explanation(
                 values=shap_values_class1[0],
-                base_values=explainer.expected_value[1],
+                base_values=explainer.expected_value,
                 data=df_scaled.iloc[0].values,
                 feature_names=df_scaled.columns
             )
