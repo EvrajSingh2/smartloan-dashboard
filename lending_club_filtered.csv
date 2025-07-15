@@ -1,0 +1,6 @@
+loan_amnt,annual_inc,fico_range_low,emp_length_1 year,purpose_credit_card,default,loan_status
+10000,55000,660,0,1,0,Fully Paid
+20000,72000,700,1,0,0,Fully Paid
+15000,32000,620,1,0,1,Charged Off
+30000,95000,780,0,1,0,Fully Paid
+5000,40000,600,1,0,1,Charged Off
