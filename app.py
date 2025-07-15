@@ -30,7 +30,7 @@ def train_model():
     model = RandomForestClassifier(n_estimators=100, random_state=42)
     model.fit(X_train_scaled, y_train)
     y_pred = model.predict(X_test_scaled)
-    print("Model Performance:", classification_report(y_test, y_pred))
+    print("Model Performance:\n", classification_report(y_test, y_pred))
     with open('model.pkl', 'wb') as f:
         pickle.dump(model, f)
     with open('scaler.pkl', 'wb') as f:
@@ -69,12 +69,10 @@ def main():
 
         st.subheader("Prediction Breakdown with SHAP")
         try:
-            # Use SHAP's unified API for better compatibility
-            explainer = shap.Explainer(model, df_scaled)
-            shap_values = explainer(df_scaled)
-            shap_values_class1 = shap_values.values
+            explainer = shap.TreeExplainer(model, feature_perturbation="tree_path_dependent")
+            shap_values = explainer.shap_values(df_scaled, check_additivity=False)
+            shap_values_class1 = shap_values[1] if isinstance(shap_values, list) else shap_values
 
-            # Global SHAP Summary
             st.write("### Global Feature Importance")
             st.write("🔍 Debug: df_scaled shape", df_scaled.shape)
             st.write("🔍 Debug: shap_values_class1 shape", shap_values_class1.shape)
@@ -88,11 +86,11 @@ def main():
             )
             st.pyplot(fig_summary)
 
-            # Local SHAP Waterfall for first row
             st.write("### Local Explanation (First Row)")
+            base_value = explainer.expected_value[1] if isinstance(explainer.expected_value, (list, np.ndarray)) else explainer.expected_value
             explanation = shap.Explanation(
                 values=shap_values_class1[0],
-                base_values=explainer.expected_value,
+                base_values=base_value,
                 data=df_scaled.iloc[0].values,
                 feature_names=df_scaled.columns
             )
@@ -109,7 +107,3 @@ def main():
 if __name__ == '__main__':
     train_model()
     main()
-
-
-
-
