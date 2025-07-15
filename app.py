@@ -56,7 +56,6 @@ def main():
             if col not in df_input.columns:
                 df_input[col] = 0
         df_input = df_input[model_columns]
-
         df_input = df_input.astype(float)
         X_scaled = scaler.transform(df_input)
         predictions = model.predict(X_scaled)
@@ -71,9 +70,19 @@ def main():
             shap_values = explainer(df_input)
 
             st.write("### Global Feature Importance (Class 1)")
-            fig_summary, ax_summary = plt.subplots()
-            shap.summary_plot(shap_values[:, 1], df_input, show=False)
-            st.pyplot(fig_summary)
+            # Global SHAP summary plot
+            try:
+                st.write("### Global Feature Importance (Class 1)")
+
+                shap_values_class1 = shap_values[:, 1]
+                shap.summary_plot(shap_values_class1, df_input.values, feature_names=df_input.columns, show=False)
+
+                fig_summary, ax_summary = plt.subplots()
+                st.pyplot(fig_summary)
+
+            except Exception as e:
+                st.warning(f"SHAP global explanation failed: {e}")
+
 
             st.write("### Local Explanation (First Row for Class 1 - Default)")
             explanation = shap.Explanation(
@@ -83,7 +92,8 @@ def main():
                 feature_names=shap_values.feature_names
             )
             fig_waterfall, ax_waterfall = plt.subplots()
-            shap.plots.waterfall(explanation, show=False)
+            shap.plots.waterfall(shap_values[0, 1], show=False)
+
             st.pyplot(fig_waterfall)
 
         except Exception as e:
