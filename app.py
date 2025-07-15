@@ -74,7 +74,7 @@ def main():
             explainer = shap.Explainer(model, df_input_numeric)
             shap_values = explainer(df_input_numeric)
 
-            st.set_option('deprecation.showPyplotGlobalUse', False)
+            
             st.write("### Global Feature Importance")
             shap.summary_plot(shap_values, df_input)
             st.pyplot(bbox_inches='tight')
