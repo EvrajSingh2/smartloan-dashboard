@@ -70,8 +70,9 @@ def main():
 
         st.subheader("Prediction Breakdown with SHAP")
         try:
-            explainer = shap.Explainer(model, df_input)
-            shap_values = explainer(df_input)
+            df_input_numeric = df_input.astype(float)
+            explainer = shap.Explainer(model, df_input_numeric)
+            shap_values = explainer(df_input_numeric)
 
             st.set_option('deprecation.showPyplotGlobalUse', False)
             st.write("### Global Feature Importance")
