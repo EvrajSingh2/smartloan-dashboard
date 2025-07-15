@@ -68,9 +68,10 @@ def main():
 
         st.subheader("Prediction Breakdown with SHAP")
         try:
+            # Use TreeExplainer for classic models like RandomForest
             explainer = shap.TreeExplainer(model)
             shap_values = explainer.shap_values(df_scaled, check_additivity=False)
-            shap_values_class1 = shap_values[1]  # SHAP values for class 1 (default)
+            shap_values_class1 = shap_values[1]  # class 1 = default
 
             # Global SHAP Summary
             st.write("### Global Feature Importance")
@@ -83,8 +84,21 @@ def main():
             )
             st.pyplot(fig_summary)
 
+            # Local SHAP Waterfall for first row
+            st.write("### Local Explanation (First Row)")
+            explanation = shap.Explanation(
+                values=shap_values_class1[0],
+                base_values=explainer.expected_value[1],
+                data=df_scaled.iloc[0].values,
+                feature_names=df_scaled.columns
+            )
+            fig_waterfall, ax = plt.subplots()
+            shap.plots.waterfall(explanation, show=False)
+            st.pyplot(fig_waterfall)
+
         except Exception as e:
             st.warning(f"SHAP explanation failed: {e}")
+
 
 
         st.subheader("Prediction Distribution")
