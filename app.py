@@ -77,12 +77,11 @@ def main():
             
             st.write("### Global Feature Importance")
             fig_summary, ax_summary = plt.subplots()
-            shap.summary_plot(shap_values, df_input, show=False)
+            shap.summary_plot(shap_values[:,:,1], df_input, show=False)
             st.pyplot(fig_summary)
-
             st.write("### Local Explanation (First Row)")
             fig_waterfall, ax_waterfall = plt.subplots()
-            shap.plots.waterfall(shap_values[0], show=False)
+            shap.plots.waterfall(shap_values[0][1], show=False)
             st.pyplot(fig_waterfall)
 
         except Exception as e:
