@@ -93,9 +93,10 @@ try:
 except Exception as e:
     st.warning(f"SHAP explanation failed: {e}")
 
-st.subheader("Prediction Distribution")
-st.bar_chart(df['Default Prediction'].value_counts())
+    st.subheader("Prediction Distribution")
+    st.bar_chart(df['Default Prediction'].value_counts())
 
 if __name__ == '__main__':
     train_model()
     main()
+
