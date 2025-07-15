@@ -30,8 +30,7 @@ def train_model():
     model = RandomForestClassifier(n_estimators=100, random_state=42)
     model.fit(X_train_scaled, y_train)
     y_pred = model.predict(X_test_scaled)
-    print("Model Performance:
-", classification_report(y_test, y_pred))
+    print("Model Performance:", classification_report(y_test, y_pred))
     with open('model.pkl', 'wb') as f:
         pickle.dump(model, f)
     with open('scaler.pkl', 'wb') as f:
