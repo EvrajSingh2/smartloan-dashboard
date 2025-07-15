@@ -80,12 +80,15 @@ def main():
             shap.summary_plot(shap_values[:,:,1], df_input, show=False)
             st.pyplot(fig_summary)
             st.write("### Local Explanation (First Row)")
+            st.write("### Local Explanation (First Row, Class 1 - Default)")
+
             try:
                 fig_waterfall, ax_waterfall = plt.subplots()
-                shap.plots.waterfall(shap_values[0], show=False)
+                shap.plots.waterfall(shap_values[0, 1], show=False)  # 0 = first row, 1 = class 'default'
                 st.pyplot(fig_waterfall)
             except Exception as e:
                 st.warning(f"SHAP local explanation failed: {e}")
+ 
 
         except Exception as e:
             st.error(f"SHAP explanation failed: {e}")
