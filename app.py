@@ -68,7 +68,7 @@ def main():
 
         st.subheader("Prediction Breakdown with SHAP")
         try:
-            explainer = shap.Explainer(model, df_scaled)
+            explainer = shap.Explainer(model, df_scaled, check_additivity=False)
             shap_values = explainer(df_scaled)
 
             if len(shap_values.shape) == 3:  # Multi-class output
@@ -96,6 +96,7 @@ def main():
 if __name__ == '__main__':
     train_model()
     main()
+
 
 
 
