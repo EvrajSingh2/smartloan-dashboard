@@ -1,29 +1,21 @@
-# SmartLoan – Loan Default Predictor with Explainability
+# 🧠 SmartLoan Dashboard
 
-This project predicts whether a loan applicant will default based on LendingClub data.
+A machine learning-powered Streamlit app that predicts loan default risk using real LendingClub data. It also provides model explainability using SHAP values, allowing users to understand **why** a loan was predicted as risky.
 
-## Features
-- Real-world loan dataset
-- Trained ML model (Random Forest)
-- SHAP explainability (global + per prediction)
-- Interactive dashboard with Streamlit
-- Upload your own CSVs to test predictions
+## 🚀 Live App
 
-## How to Run
-1. Install dependencies:
-    ```bash
-    pip install -r requirements.txt
-    ```
+👉 [Try the App on Streamlit](https://smartloan-dashboard-5hkswlctzwkkega39cwqx9.streamlit.app/)
 
-2. Run the app:
-    ```bash
-    streamlit run app.py
-    ```
+## 📦 Features
 
-3. Upload a CSV file with applicant data.
+- 📁 Upload CSV with borrower loan application data
+- ⚙️ Predict loan default using a trained Random Forest model
+- 🔍 Explain model decisions with SHAP (global + local)
+- 📊 Visualize prediction distribution via interactive chart
 
-## Demo
-Coming soon…
+## 🧠 ML Pipeline
 
-## Deployment
-Deploy easily on [Streamlit Cloud](https://streamlit.io/cloud)
+- Dataset: LendingClub (filtered and cleaned)
+- Model: `RandomForestClassifier`
+- Scaling: `StandardScaler`
+- Explainabil
