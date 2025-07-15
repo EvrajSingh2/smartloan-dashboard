@@ -76,10 +76,19 @@ def main():
                 shap_values_class1 = shap_values
 
             # Global SHAP Summary
+            # Global SHAP Summary
             st.write("### Global Feature Importance")
             fig_summary, ax_summary = plt.subplots()
-            shap.summary_plot(shap_values_class1, df_input.values, feature_names=df_input.columns, show=False)
+
+# Use only feature values from the input, not the original SHAP object which may include metadata
+            shap.summary_plot(
+               shap_values_class1.values,
+               features=df_input.values,
+               feature_names=df_input.columns,
+               show=False
+            )
             st.pyplot(fig_summary)
+
 
             # Local SHAP Waterfall (First row)
             st.write("### Local Explanation (First Row)")
