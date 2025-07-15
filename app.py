@@ -1,4 +1,4 @@
-# SmartLoan: Loan Default Predictor with SHAP Explainability
+# SmartLoan: ML Project with SHAP Explainability
 
 import pandas as pd
 import numpy as np
@@ -46,13 +46,9 @@ def main():
     uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
     if uploaded_file is not None:
         df = pd.read_csv(uploaded_file)
-        try:
-            model = pickle.load(open('model.pkl', 'rb'))
-            scaler = pickle.load(open('scaler.pkl', 'rb'))
-            model_columns = pickle.load(open('model_columns.pkl', 'rb'))
-        except Exception as e:
-            st.error("Model files not found. Please run the app locally once to generate them.")
-            return
+        model = pickle.load(open('model.pkl', 'rb'))
+        scaler = pickle.load(open('scaler.pkl', 'rb'))
+        model_columns = pickle.load(open('model_columns.pkl', 'rb'))
 
         df_input = df.copy()
         df_input = pd.get_dummies(df_input)
@@ -61,6 +57,7 @@ def main():
                 df_input[col] = 0
         df_input = df_input[model_columns]
 
+        df_input = df_input.astype(float)
         X_scaled = scaler.transform(df_input)
         predictions = model.predict(X_scaled)
         df['Default Prediction'] = predictions
@@ -70,36 +67,31 @@ def main():
 
         st.subheader("Prediction Breakdown with SHAP")
         try:
-            df_input_numeric = df_input.astype(float)
-            explainer = shap.Explainer(model, df_input_numeric)
-            shap_values = explainer(df_input_numeric)
+            explainer = shap.Explainer(model, df_input)
+            shap_values = explainer(df_input)
 
-            
-            st.write("### Global Feature Importance")
+            st.write("### Global Feature Importance (Class 1)")
             fig_summary, ax_summary = plt.subplots()
-            shap.summary_plot(shap_values[:,:,1], df_input, show=False)
+            shap.summary_plot(shap_values[:, 1], df_input, show=False)
             st.pyplot(fig_summary)
-            st.write("### Local Explanation (First Row)")
-            st.write("### Local Explanation (First Row, Class 1 - Default)")
 
-            try:
-                fig_waterfall, ax_waterfall = plt.subplots()
-                shap.plots.waterfall(shap_values[0, 1], show=False)  # 0 = first row, 1 = class 'default'
-                st.pyplot(fig_waterfall)
-            except Exception as e:
-                st.warning(f"SHAP local explanation failed: {e}")
- 
+            st.write("### Local Explanation (First Row for Class 1 - Default)")
+            explanation = shap.Explanation(
+                values=shap_values.values[0, 1],
+                base_values=shap_values.base_values[0, 1],
+                data=shap_values.data[0],
+                feature_names=shap_values.feature_names
+            )
+            fig_waterfall, ax_waterfall = plt.subplots()
+            shap.plots.waterfall(explanation, show=False)
+            st.pyplot(fig_waterfall)
 
         except Exception as e:
-            st.error(f"SHAP explanation failed: {e}")
+            st.warning(f"SHAP explanation failed: {e}")
 
         st.subheader("Prediction Distribution")
         st.bar_chart(df['Default Prediction'].value_counts())
 
 if __name__ == '__main__':
-    try:
-        train_model()
-    except Exception as e:
-        print(f"Training skipped or failed: {e}")
+    train_model()
     main()
-# Placeholder - content already in canvas
