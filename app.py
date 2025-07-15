@@ -88,12 +88,22 @@ def main():
 
             st.write("### Local Explanation (First Row)")
             base_value = explainer.expected_value[1] if isinstance(explainer.expected_value, (list, np.ndarray)) else explainer.expected_value
+            # If shap_values_class1 has shape (n_samples, n_features, n_outputs), pick class 1 (index 1)
+            if shap_values_class1.ndim == 3:
+               single_row_values = shap_values_class1[0, :, 1]  # First sample, class 1
+               single_base_value = explainer.expected_value[1]
+            else:
+               single_row_values = shap_values_class1[0]
+               single_base_value = explainer.expected_value if np.isscalar(explainer.expected_value) else explainer.expected_value[1]
+
             explanation = shap.Explanation(
-                values=shap_values_class1[0],
-                base_values=base_value,
-                data=df_scaled.iloc[0].values,
-                feature_names=df_scaled.columns
-            )
+               values=single_row_values,
+               base_values=single_base_value,
+               data=df_scaled.iloc[0].values,
+               feature_names=df_scaled.columns
+             )
+
+            
             fig_waterfall, ax = plt.subplots()
             shap.plots.waterfall(explanation, show=False)
             st.pyplot(fig_waterfall)
