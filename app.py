@@ -70,27 +70,33 @@ def main():
             explainer = shap.Explainer(model, df_input)
             shap_values = explainer(df_input)
 
-            # Global Feature Importance for Class 1
-            st.write("### Global Feature Importance (Class 1)")
-            shap_values_class1 = shap_values[:, 1]
+            # Check shape of shap_values
+            if len(shap_values.shape) == 3:  # Multi-class (samples, classes, features)
+                shap_values_class1 = shap_values[:, 1]
+            else:  # Binary classifier with single output (samples, features)
+                shap_values_class1 = shap_values
+
+            # Global Feature Importance
+            st.write("### Global Feature Importance")
             fig_summary, ax_summary = plt.subplots()
             shap.summary_plot(shap_values_class1, df_input.values, feature_names=df_input.columns, show=False)
             st.pyplot(fig_summary)
 
-            # Local Explanation (First Row for Class 1)
-            st.write("### Local Explanation (First Row for Class 1 - Default)")
-            explanation = shap.Explanation(
-                values=shap_values.values[0, 1],
-                base_values=shap_values.base_values[0, 1],
-                data=shap_values.data[0],
-                feature_names=shap_values.feature_names
+            # Local Explanation (First Row)
+            st.write("### Local Explanation (First Row)")
+            first_row_expl = shap.Explanation(
+                values=shap_values_class1.values[0],
+                base_values=shap_values_class1.base_values[0],
+                data=shap_values_class1.data[0],
+                feature_names=shap_values_class1.feature_names
             )
             fig_waterfall, ax_waterfall = plt.subplots()
-            shap.plots.waterfall(explanation, show=False)
+            shap.plots.waterfall(first_row_expl, show=False)
             st.pyplot(fig_waterfall)
 
         except Exception as e:
             st.warning(f"SHAP explanation failed: {e}")
+
 
         st.subheader("Prediction Distribution")
         st.bar_chart(df['Default Prediction'].value_counts())
