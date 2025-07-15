@@ -70,33 +70,31 @@ def main():
             explainer = shap.Explainer(model, df_input)
             shap_values = explainer(df_input)
 
-            # Check shape of shap_values
-            if len(shap_values.shape) == 3:  # Multi-class (samples, classes, features)
+            if len(shap_values.shape) == 3:  # Multi-class output
                 shap_values_class1 = shap_values[:, 1]
-            else:  # Binary classifier with single output (samples, features)
+            else:  # Binary output
                 shap_values_class1 = shap_values
 
-            # Global Feature Importance
+            # Global SHAP Summary
             st.write("### Global Feature Importance")
             fig_summary, ax_summary = plt.subplots()
             shap.summary_plot(shap_values_class1, df_input.values, feature_names=df_input.columns, show=False)
             st.pyplot(fig_summary)
 
-            # Local Explanation (First Row)
+            # Local SHAP Waterfall (First row)
             st.write("### Local Explanation (First Row)")
-            first_row_expl = shap.Explanation(
+            explanation = shap.Explanation(
                 values=shap_values_class1.values[0],
                 base_values=shap_values_class1.base_values[0],
                 data=shap_values_class1.data[0],
                 feature_names=shap_values_class1.feature_names
             )
             fig_waterfall, ax_waterfall = plt.subplots()
-            shap.plots.waterfall(first_row_expl, show=False)
+            shap.plots.waterfall(explanation, show=False)
             st.pyplot(fig_waterfall)
 
         except Exception as e:
             st.warning(f"SHAP explanation failed: {e}")
-
 
         st.subheader("Prediction Distribution")
         st.bar_chart(df['Default Prediction'].value_counts())
@@ -104,4 +102,5 @@ def main():
 if __name__ == '__main__':
     train_model()
     main()
+
 
