@@ -75,6 +75,9 @@ def main():
 
             # Global SHAP Summary
             st.write("### Global Feature Importance")
+            st.write("🔍 Debug: df_scaled shape", df_scaled.shape)
+            st.write("🔍 Debug: shap_values_class1 shape", shap_values_class1.shape)
+
             fig_summary, ax_summary = plt.subplots()
             shap.summary_plot(
                 shap_values_class1,
