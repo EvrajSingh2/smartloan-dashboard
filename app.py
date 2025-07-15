@@ -66,35 +66,34 @@ def main():
         st.dataframe(df)
 
         st.subheader("Prediction Breakdown with SHAP")
+        try:
+            explainer = shap.Explainer(model, df_input)
+            shap_values = explainer(df_input)
 
-try:
-    explainer = shap.Explainer(model, df_input)
-    shap_values = explainer(df_input)
+            # Global Feature Importance for Class 1
+            st.write("### Global Feature Importance (Class 1)")
+            shap_values_class1 = shap_values[:, 1]
+            fig_summary, ax_summary = plt.subplots()
+            shap.summary_plot(shap_values_class1, df_input.values, feature_names=df_input.columns, show=False)
+            st.pyplot(fig_summary)
 
-    # Global SHAP Summary
-    st.write("### Global Feature Importance (Class 1)")
-    shap_values_class1 = shap_values[:, 1]
-    fig_summary, ax_summary = plt.subplots()
-    shap.summary_plot(shap_values_class1, df_input.values, feature_names=df_input.columns, show=False)
-    st.pyplot(fig_summary)
+            # Local Explanation (First Row for Class 1)
+            st.write("### Local Explanation (First Row for Class 1 - Default)")
+            explanation = shap.Explanation(
+                values=shap_values.values[0, 1],
+                base_values=shap_values.base_values[0, 1],
+                data=shap_values.data[0],
+                feature_names=shap_values.feature_names
+            )
+            fig_waterfall, ax_waterfall = plt.subplots()
+            shap.plots.waterfall(explanation, show=False)
+            st.pyplot(fig_waterfall)
 
-    # Local SHAP Waterfall
-    st.write("### Local Explanation (First Row for Class 1 - Default)")
-    explanation = shap.Explanation(
-        values=shap_values.values[0, 1],
-        base_values=shap_values.base_values[0, 1],
-        data=shap_values.data[0],
-        feature_names=shap_values.feature_names
-    )
-    fig_waterfall, ax_waterfall = plt.subplots()
-    shap.plots.waterfall(explanation, show=False)
-    st.pyplot(fig_waterfall)
+        except Exception as e:
+            st.warning(f"SHAP explanation failed: {e}")
 
-except Exception as e:
-    st.warning(f"SHAP explanation failed: {e}")
-
-    st.subheader("Prediction Distribution")
-    st.bar_chart(df['Default Prediction'].value_counts())
+        st.subheader("Prediction Distribution")
+        st.bar_chart(df['Default Prediction'].value_counts())
 
 if __name__ == '__main__':
     train_model()
