@@ -59,6 +59,7 @@ def main():
 
         df_input = df_input.astype(float)
         X_scaled = scaler.transform(df_input)
+        df_scaled = pd.DataFrame(X_scaled, columns=model_columns)
         predictions = model.predict(X_scaled)
         df['Default Prediction'] = predictions
 
@@ -67,8 +68,8 @@ def main():
 
         st.subheader("Prediction Breakdown with SHAP")
         try:
-            explainer = shap.Explainer(model, df_input)
-            shap_values = explainer(df_input)
+            explainer = shap.Explainer(model, df_scaled)
+            shap_values = explainer(df_scaled)
 
             if len(shap_values.shape) == 3:  # Multi-class output
                 shap_values_class1 = shap_values[:, 1]
@@ -80,22 +81,10 @@ def main():
             fig_summary, ax_summary = plt.subplots()
             shap.summary_plot(
                 shap_values_class1.values,
-                features=df_input.values,
-                feature_names=df_input.columns,
+                features=df_scaled.values,
+                feature_names=df_scaled.columns,
                 show=False
             )
-            st.pyplot(fig_summary)
-
-            # Local SHAP Waterfall (First row)
-            st.write("### Local Explanation (First Row)")
-            explanation = shap.Explanation(
-                values=shap_values_class1.values[0],
-                base_values=shap_values_class1.base_values[0],
-                data=shap_values_class1.data[0],
-                feature_names=shap_values_class1.feature_names
-            )
-            fig_waterfall, ax_waterfall = plt.subplots()
-            shap.plots.waterfall(explanation, show=False)
             st.pyplot(fig_waterfall)
 
         except Exception as e:
@@ -107,5 +96,6 @@ def main():
 if __name__ == '__main__':
     train_model()
     main()
+
 
 
